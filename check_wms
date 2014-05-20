@@ -1,0 +1,77 @@
+#!/usr/bin/ruby
+require 'optparse'
+require 'open-uri'
+require 'uri'
+require 'benchmark'
+
+def randombbox(extent) 
+  minx,miny,maxx,maxy = extent.split(',').map { |x| x.to_i }
+
+  # Calculate the height and width of the extent
+  width = maxx - minx
+  height = maxy - miny
+
+  # Generate the height and width of the new bbox
+  bboxWidth = rand() * width
+  bboxHeight = rand() * height
+
+  # Work out an offset from the origin when the bbox can begin
+  offsetX = rand() * (width - bboxWidth) + minx
+  offsetY = rand() * (height - bboxHeight) + miny
+
+  return [offsetX, offsetY, offsetX + bboxWidth, offsetY + bboxHeight].join ','
+end
+
+def generateGetMap(host, bbox, layer, format="image/png", version= "1.1.1", style="", srs="EPSG:4326", width=600, height=800)
+  url = URI.parse(host)
+  url.query += "LAYERS=#{layer}&"
+  url.query += "FORMAT=#{format}&"
+  url.query += "SERVICE=WMS&"
+  url.query += "VERSION=#{version}&"
+  url.query += "REQUEST=GetMap&"
+  url.query += "STYLE=#{style}&"
+  url.query += "SRS=#{srs}&"
+  url.query += "BBOX=#{bbox}&"
+  url.query += "WIDTH=#{width}&"
+  url.query += "HEIGHT=#{height}&"
+  return url
+end
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: check_wms [options]"
+
+  opts.on("-H", "--host WMSServer", "The wms server to call") do |url|
+    options[:url] = url
+  end
+
+  opts.on("-X", "--extent minx,maxx,miny,maxy", "The max extent of the wms service") do |extent|
+    options[:extent] = randombbox(extent)
+  end
+
+  opts.on("-L", "--layer WMSLayer", "The WMS layer to use for calling") do |layer|
+    options[:layer] = layer
+  end
+end.parse!
+
+url = generateGetMap(options[:url], options[:extent], options[:layer])
+
+begin 
+  time = Benchmark.realtime do
+    url.read()
+  end
+
+  if time < 4
+    puts "OK - WMS call #{url} returned in #{time} seconds"
+    exit 0
+  elsif time < 5
+    puts  "WARNING - WMS call #{url} returned in #{time} seconds"
+    exit 1
+  else
+    puts "CRITICAL - WMS call #{url} returned in #{time} seconds"
+    exit 2
+  end
+rescue
+  puts "CRITICAL - Failed to call #{url}"
+  exit 2
+end
