@@ -62,13 +62,13 @@ begin
   end
 
   if time < 4
-    puts "OK - WMS call #{url} returned in #{time} seconds|trip=#{time}s""
+    puts "OK - WMS call #{url} returned in #{time} seconds|trip=#{time}s"
     exit 0
   elsif time < 5
-    puts  "WARNING - WMS call #{url} returned in #{time} seconds|trip=#{time}s""
+    puts  "WARNING - WMS call #{url} returned in #{time} seconds|trip=#{time}s"
     exit 1
   else
-    puts "CRITICAL - WMS call #{url} returned in #{time} seconds|trip=#{time}s""
+    puts "CRITICAL - WMS call #{url} returned in #{time} seconds|trip=#{time}s"
     exit 2
   end
 rescue
