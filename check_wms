@@ -4,7 +4,7 @@ require 'open-uri'
 require 'uri'
 require 'benchmark'
 
-def randombbox(extent) 
+def randombbox(extent)
   minx,miny,maxx,maxy = extent.split(',').map { |x| x.to_i }
 
   # Calculate the height and width of the extent
@@ -29,7 +29,7 @@ def generateGetMap(host, bbox, layer, format="image/png", version= "1.1.1", styl
   url.query += "SERVICE=WMS&"
   url.query += "VERSION=#{version}&"
   url.query += "REQUEST=GetMap&"
-  url.query += "STYLE=#{style}&"
+  url.query += "STYLES=#{style}&"
   url.query += "SRS=#{srs}&"
   url.query += "BBOX=#{bbox}&"
   url.query += "WIDTH=#{width}&"
@@ -56,19 +56,19 @@ end.parse!
 
 url = generateGetMap(options[:url], options[:extent], options[:layer])
 
-begin 
+begin
   time = Benchmark.realtime do
     url.read()
   end
 
   if time < 4
-    puts "OK - BBOX #{options[:extent]} returned in #{time} seconds|trip=#{time}s"
+    puts "OK - WMS call #{url} returned in #{time} seconds|trip=#{time}s"
     exit 0
   elsif time < 5
-    puts  "WARNING - BBOX #{options[:extent]} returned in #{time} seconds|trip=#{time}s"
+    puts  "WARNING - WMS call #{url} returned in #{time} seconds|trip=#{time}s"
     exit 1
   else
-    puts "CRITICAL - BBOX #{options[:extent]} returned in #{time} seconds|trip=#{time}s"
+    puts "CRITICAL - WMS call #{url} returned in #{time} seconds|trip=#{time}s"
     exit 2
   end
 rescue
