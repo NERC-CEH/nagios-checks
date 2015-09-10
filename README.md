@@ -1,4 +1,6 @@
-nagios-ogc-plugins
-==================
+# nagios-checks
 
-A suite of tools for monitoring the performance of ogc view services
+This repository hosts a suite of nagios checks for things like:
+
+- Performance monitoring of OGC services
+- FME Server Engine checks

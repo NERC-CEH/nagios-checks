@@ -1,0 +1,53 @@
+#!/usr/bin/ruby
+require 'optparse'
+require 'open-uri'
+require 'json'
+require 'uri'
+
+def engine_count(host, u, p)
+  engines = open("#{host}/transformations/engines", http_basic_authentication: [u, p]).read
+  return JSON.parse(engines).count
+end
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: check_fme_engines [options]"
+
+  opts.on("-H", "--host FMEServer", "The endpoint of the fme server api to query") do |url|
+    options[:url] = url
+  end
+
+  opts.on("-u", "--username myUsername", "An fme users username who is authorized to query the engine info") do |username|
+    options[:username] = username
+  end
+
+  opts.on("-p", "--password pa55woRd", "The corresponding password for the given username") do |password|
+    options[:password] = password
+  end
+
+  opts.on("-w", "--warning 2", "Exit with WARNING status if amount of fme engines or lower are registered") do |warning|
+    options[:warning] = warning.to_i
+  end
+
+  opts.on("-c", "--critical 1", "Exit with CRITICAL status if amount of fme engines or lower are registered") do |critical|
+    options[:critical] = critical.to_i
+  end
+end.parse!
+
+begin
+  count = engine_count(options[:url], options[:username], options[:password])
+
+  if count >= options[:critical]
+    puts "OK - FME Engine Count #{count} | engines=#{count}"
+    exit 0
+  elsif count >= options[:warning]
+    puts  "WARNING - FME Engine Count #{count} | engines=#{count}"
+    exit 1
+  else
+    puts "CRITICAL - FME Engine Count #{count} | engines=#{count}"
+    exit 2
+  end
+rescue
+  puts "CRITICAL - Failed to call fme api"
+  exit 2
+end
