@@ -5,7 +5,7 @@ require 'json'
 require 'uri'
 
 def engine_count(host, u, p)
-  engines = open("#{host}/transformations/engines", http_basic_authentication: [u, p]).read
+  engines = open("#{host}/transformations/engines", :http_basic_authentication => [u, p]).read
   return JSON.parse(engines).count
 end
 
