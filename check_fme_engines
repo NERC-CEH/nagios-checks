@@ -37,10 +37,10 @@ end.parse!
 begin
   count = engine_count(options[:url], options[:username], options[:password])
 
-  if count >= options[:critical]
+  if count >= options[:warning]
     puts "OK - FME Engine Count #{count} | engines=#{count}"
     exit 0
-  elsif count >= options[:warning]
+  elsif count >= options[:critical]
     puts  "WARNING - FME Engine Count #{count} | engines=#{count}"
     exit 1
   else
